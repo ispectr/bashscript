@@ -3,9 +3,11 @@
 file_dir_flag=false
 output_file_dir_flag=false
 get_child_arg_flag=false
+output_file_name="a.out"
+wait_user=false
 
 file_dir=""
-output_file_dir=""
+output_file_dir=$PWD/a.out
 child_arg=""
 
 # PARSE ARGUMENTS
@@ -20,7 +22,7 @@ for arg in "$@"; do
     file_dir_flag=false
   fi
 
-  if [[ $arg == "--if" ]]; then
+  if [[ $arg == "-i" ]] || [[ $arg == "--input-file" ]]; then
     file_dir_flag=true
   fi
 
@@ -29,11 +31,14 @@ for arg in "$@"; do
     output_file_dir=$arg
     if [[ $arg != /* ]]; then
       output_file_dir=$PWD/$arg
+      output_file_name=$arg
+    else
+      output_file_name=$(basename $arg)
     fi
     output_file_dir_flag=false
   fi
 
-  if [[ $arg == "--of" ]]; then
+  if [[ $arg == "-o" ]] || [[ $arg == "--output-file" ]]; then
     output_file_dir_flag=true
   fi
 
@@ -43,15 +48,26 @@ for arg in "$@"; do
     get_child_arg_flag=false
   fi
 
-  if [[ $arg == "--arg" ]]; then
+  if [[ $arg == "-a" ]] || [[ $arg == --arguments ]]; then
     get_child_arg_flag=true
+  fi
+
+  if [[ $arg == "-w" ]] || [[ $arg == "--wait-user" ]]; then
+    wait_user=true
   fi
 done
 
 if [[ -f "$file_dir" ]]; then
   g++ $file_dir -o $output_file_dir
   xreturnval=$?
-  $output_file_dir $child_arg
+  if [[ $xreturnval == 0 ]]; then 
+    $PWD/./$output_file_name $child_arg
+  fi
 else 
   echo "[-] no such file or directory: $file_dir"
+fi
+
+if [[ $wait_user == true ]]; then
+  echo "%"
+  read -p "[Press enter to continue]"
 fi
