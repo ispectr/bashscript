@@ -55,5 +55,3 @@ if [[ -f "$file_dir" ]]; then
 else 
   echo "[-] no such file or directory: $file_dir"
 fi
-
-echo $filename
